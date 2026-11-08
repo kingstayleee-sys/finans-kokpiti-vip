@@ -1,0 +1,16 @@
+{
+  "name": "Finans Kokpiti VIP",
+  "short_name": "Kokpit VIP",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#05080f",
+  "theme_color": "#05080f",
+  "icons": [
+    {
+      "src": "https://i.ibb.co/68Hn6yC2/neon-bank.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
