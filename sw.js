@@ -1,6 +1,13 @@
-self.addEventListener('install', (e) => {
-  console.log('[Service Worker] Uygulama Kuruldu');
+self.addEventListener('install', (event) => {
+    self.skipWaiting();
 });
-self.addEventListener('fetch', (e) => {
-  // Brave tarayıcısını "çevrimdışı çalışabiliyor" diye kandıran boş yakalayıcı
+
+self.addEventListener('activate', (event) => {
+    event.waitUntil(clients.claim());
+});
+
+self.addEventListener('fetch', (event) => {
+    event.respondWith(
+        fetch(event.request).catch(() => new Response("Çevrimdışı Mod"))
+    );
 });
