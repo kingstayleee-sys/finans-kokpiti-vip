@@ -495,7 +495,7 @@
     // =========================================================
     // GEMINI AI ASİSTANI VE KUSURSUZ (JSON ZORUNLU) ENTEGRASYON
     // =========================================================
-    const GEMINI_API_KEY = "AQ.Ab8RN6IDoBeW1CjbU0wr6BwHx8UbKI6Wt7Z2F-hBNHbm5yxpFg"; 
+    const GEMINI_API_KEY = "AQ.Ab8RN6J6EmhO9yhs1ndo9UFsKtmAvghqJoHMnaL20xk65FBWjw"; 
     
     let recognition;
     let isListening = false;
@@ -525,7 +525,7 @@
             console.error("Mikrofon hatası detay:", event.error);
             resetMicUI();
             if (event.error === 'not-allowed') {
-                showToast("Brave ayarlarından (Aslan simgesi) mikrofona izin verin.", "fa-microphone-slash");
+                showToast("Tarayıcı ayarlarından mikrofona izin verin.", "fa-microphone-slash");
             } else if (event.error === 'no-speech') {
                 showToast("Ses algılanamadı, biraz daha yüksek sesle söyle.", "fa-volume-xmark");
             } else {
@@ -548,10 +548,6 @@
         }
         if (isListening) { 
             recognition.stop(); 
-            return; 
-        }
-        if (GEMINI_API_KEY === "BURAYA_API_ANAHTARINI_YAPISTIR" || GEMINI_API_KEY === "") { 
-            showToast("Lütfen koda API anahtarınızı girin.", "fa-key"); 
             return; 
         }
         try { 
@@ -583,9 +579,17 @@ Kurallar ve Format:
   "hedefHesap": "nakit" 
 }
 `;
+        
+        // EĞER İŞLEM 5 SANİYEDEN UZUN SÜRERSE EKRANDAKİ YAZIYI GÜNCELLE Kİ DONDU SANILMASIN
+        let waitTimer = setTimeout(() => {
+            let indText = document.getElementById('aiIndicatorText');
+            if(indText) indText.innerText = "Biraz uzun sürdü, bağlanıyor...";
+        }, 5000);
+
         try {
-            // BURASI GÜNCELLENDİ: Hata mesajının doğrudan istediği gemini-3.8-flash modeline çekildi.
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${GEMINI_API_KEY}`, {
+            // BAĞLANTIYI KESEN 8 SANİYELİK LİMİT (ABORT CONTROLLER) TAMAMEN KALDIRILDI.
+            // MODEL OLARAK EN STABİL VERSİYON OLAN 1.5-FLASH SABİTLENDİ.
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
@@ -594,9 +598,11 @@ Kurallar ve Format:
                 })
             });
             
+            clearTimeout(waitTimer);
+            
             if (!response.ok) {
                 const errData = await response.text();
-                alert("GOOGLE API HATASI DETAYI:\n\n" + errData);
+                console.error("API DETAYI:", errData);
                 throw new Error("API_HTTP_ERROR");
             }
             
@@ -607,7 +613,6 @@ Kurallar ve Format:
             }
 
             let aiText = data.candidates[0].content.parts[0].text;
-            
             let parsedData;
             try {
                 parsedData = JSON.parse(aiText);
@@ -624,7 +629,6 @@ Kurallar ve Format:
                 let temizTutar = parsedData.tutar.replace(/\./g, '').replace(/,/g, '.');
                 parsedData.tutar = parseFloat(temizTutar);
             }
-            
             if(isNaN(parsedData.tutar)) {
                 parsedData.tutar = 0;
             }
@@ -632,16 +636,21 @@ Kurallar ve Format:
             executeAiCommand(parsedData);
             
         } catch (error) {
+            clearTimeout(waitTimer);
             console.error("Gemini Asistan Hatası:", error);
             
-            if (error.message.includes("API_HTTP_ERROR")) {
+            // ALERT (EKRAN DONDURAN UYARILAR) TAMAMEN SİLİNDİ, SADECE TOAST İLE BİLDİRİM VERİLECEK.
+            if (error.message === "API_HTTP_ERROR") {
                 showToast("API Bağlantı Hatası!", "fa-triangle-exclamation");
+            } else if (error instanceof TypeError) {
+                showToast("Ağ hatası! Tarayıcı engeli olabilir.", "fa-wifi");
             } else if (error.message.includes("JSON_PARSE_ERROR") || error.message.includes("Unexpected")) {
                 showToast("Sistemsel Okuma Hatası (Format)", "fa-code");
             } else {
                 showToast("Anlaşılamadı, tekrar deneyin.", "fa-question-circle");
             }
         } finally { 
+            clearTimeout(waitTimer);
             resetMicUI(); 
         }
     }
