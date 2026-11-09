@@ -578,8 +578,8 @@ Kurallar ve Format:
 }
 `;
         try {
-            // LATEST MODEL OLARAK GÜNCELLENDİ (Hata buradaydı!)
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
+            // HATALI -latest KELİMESİ SİLİNDİ, ORİJİNAL ÇALIŞAN MODELE DÖNÜLDÜ
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
@@ -629,7 +629,7 @@ Kurallar ve Format:
             console.error("Gemini Asistan Hatası:", error);
             
             if (error.message.includes("API_HTTP_ERROR")) {
-                showToast("API Bağlantı veya Anahtar Hatası!", "fa-triangle-exclamation");
+                showToast("API Bağlantı Hatası!", "fa-triangle-exclamation");
             } else if (error.message.includes("JSON_PARSE_ERROR") || error.message.includes("Unexpected")) {
                 showToast("Sistemsel Okuma Hatası (Format)", "fa-code");
             } else {
