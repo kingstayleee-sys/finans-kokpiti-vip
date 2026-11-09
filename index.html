@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kişisel Finans Kokpiti V19 (VIP AI)</title>
     
-    <!-- YENİ DIŞARIDAN OKUNAN MANIFEST VE APPLE ICON ENTEGRASYONU -->
+    <!-- PWA MANIFEST VE APPLE ICON ENTEGRASYONU -->
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png.webp">
     <script>
@@ -19,6 +19,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
+        /* GENEL YAPI VE GÖVDE (Açık, Okunabilir Format) */
         body { 
             background-color: #05080f; 
             color: #f8fafc; 
@@ -39,6 +40,7 @@
             overflow-x: hidden; 
         }
         
+        /* ALT NAVİGASYON BAR */
         .bottom-nav { 
             background: rgba(15, 23, 42, 0.85); 
             backdrop-filter: blur(20px); 
@@ -57,6 +59,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
         }
 
+        /* CAM PANEL EFEKTLERİ */
         .glass-panel { 
             background: rgba(30, 41, 59, 0.6); 
             backdrop-filter: blur(12px); 
@@ -100,6 +103,7 @@
             transition: transform 0.3s ease; 
         }
         
+        /* MİKROFON VE ANİMASYONLAR */
         .mic-btn { 
             background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); 
             box-shadow: 0 4px 10px rgba(139, 92, 246, 0.4); 
@@ -150,6 +154,7 @@
             100% { transform: rotate(360deg); } 
         }
         
+        /* FORM ELEMANLARI VE INPUTLAR */
         input[type="number"]::-webkit-outer-spin-button, 
         input[type="number"]::-webkit-inner-spin-button { 
             -webkit-appearance: none; 
@@ -222,6 +227,7 @@
             box-shadow: 0 4px 12px rgba(59,130,246,0.3); 
         }
         
+        /* ÖZEL KAYDIRMA ÇUBUKLARI */
         .custom-scroll::-webkit-scrollbar { 
             height: 6px; 
             width: 6px; 
@@ -487,7 +493,7 @@
     });
 
     // =========================================================
-    // GEMINI AI ASİSTANI (SESLİ KOMUT ENTEGRASYONU)
+    // GEMINI AI ASİSTANI VE KUSURSUZ (JSON ZORUNLU) ENTEGRASYON
     // =========================================================
     const GEMINI_API_KEY = "AQ.Ab8RN6IDoBeW1CjbU0wr6BwHx8UbKI6Wt7Z2F-hBNHbm5yxpFg"; 
     
@@ -555,52 +561,85 @@
     }
 
     async function processWithGemini(userText) {
-        // YAPAY ZEKA HATASINI ÇÖZEN, ÇOK DAHA KATI VE GÜÇLÜ YÖNERGE
+        // GELİŞMİŞ, YÖNLENDİRİCİ VE SAYI DÜZELTİCİ SİSTEM KOMUTU
         const systemPrompt = `
-Sen finansal bir veri ayrıştırma asistanısın. Görevin, kullanıcının söylediği cümleyi analiz edip SADECE JSON formatında çıktı vermektir.
-Başka HİÇBİR KELİME, markdown (örneğin \`\`\`json) KULLANMA. Doğrudan süslü parantez ile başla { ve } ile bitir.
-
+Sen profesyonel bir finansal veri ayrıştırma asistanısın. Görevin, kullanıcının sesli olarak söylediği cümleyi analiz edip KESİNLİKLE JSON formatında çıktı vermektir.
 Kullanıcı: "${userText}"
+
+ÇOK ÖNEMLİ SAYI KURALI: 
+Eğer kullanıcı "350 bin", "350.000", "350,000", "350000" gibi sayılar söylerse, bunları KESİNLİKLE düz bir sayı olarak "350000" şeklinde (noktasız ve virgülsüz) yazmalısın. 
 
 Kurallar ve Format:
 {
   "tip": "islem_turu", // Sadece şunlardan biri: "gelir", "gider", "alacak", "borc", "varlik"
-  "kategori": "Kategori Adı", // Gider ise şu listeden en uygun olanı seç: ["Market & Gıda", "Ev Kirası", "Faturalar", "Ulaşım & Yakıt", "Eğlence & Abonelik", "Giyim & Kişisel", "Diğer Gider"]. Gelir ise: ["Maaş", "Kira", "Özel Ders", "Ticaret / Satış", "Prim / Ek İş", "Diğer Gelir"].
-  "baslik": "İşlem Açıklaması", // Nereye harcandığı veya kimden geldiği (Örn: A101, Elektrik Faturası, Akın Gold)
-  "tutar": 1500.00, // SADECE SAYI. Harf veya sembol içermesin.
+  "kategori": "Kategori Adı", // Gider ise şu listeden seç: ["Market & Gıda", "Ev Kirası", "Faturalar", "Ulaşım & Yakıt", "Eğlence & Abonelik", "Giyim & Kişisel", "Diğer Gider"]. Gelir ise: ["Maaş", "Kira", "Özel Ders", "Ticaret / Satış", "Prim / Ek İş", "Diğer Gelir"].
+  "baslik": "İşlem Açıklaması", // Nereye harcandığı veya kimden geldiği (Örn: Quick China, Elektrik, Akın Gold)
+  "tutar": 350000, // SADECE DÜZ SAYI FORMATINDA (Tırnak içine alma).
   "hedefHesap": "nakit" // Hesap/Banka adı geçmiyorsa "nakit" yaz.
 }
 `;
         try {
+            // YENİ: JSON Formatını Zorunlu Kılan API İsteği
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ contents: [{ parts: [{ text: systemPrompt }] }] })
+                body: JSON.stringify({ 
+                    contents: [{ parts: [{ text: systemPrompt }] }],
+                    generationConfig: { responseMimeType: "application/json" } // JSON Modu Devrede!
+                })
             });
-            if (!response.ok) throw new Error("API Hatası");
+            
+            if (!response.ok) {
+                const errData = await response.text();
+                throw new Error("API_HTTP_ERROR");
+            }
+            
             const data = await response.json();
+            
+            if (!data.candidates || !data.candidates[0].content) {
+                throw new Error("API_BOS_YANIT");
+            }
+
             let aiText = data.candidates[0].content.parts[0].text;
             
-            // GELİŞMİŞ JSON TEMİZLEYİCİ VE TİP ZORLAYICI (Metin gelirse sayıya çevirir)
-            aiText = aiText.replace(/```json/gi, '').replace(/```/gi, '').trim();
-            let jsonMatch = aiText.match(/\{[\s\S]*\}/);
-            
-            if(jsonMatch) {
-                const parsedData = JSON.parse(jsonMatch[0]);
-                
-                // Güvenlik: Eğer yapay zeka tutarı "350" gibi metin olarak gönderirse zorla ondalık sayıya çevir
-                if(typeof parsedData.tutar === 'string') {
-                    parsedData.tutar = parseFloat(parsedData.tutar.replace(',', '.'));
+            let parsedData;
+            try {
+                // Öncelikli olarak normal parse etmeyi deneriz
+                parsedData = JSON.parse(aiText);
+            } catch(e) {
+                // Eğer yapay zeka hala inat edip etrafına süslemeler koyduysa, Regex ile temizle
+                let jsonMatch = aiText.match(/\{[\s\S]*\}/);
+                if(jsonMatch) {
+                    parsedData = JSON.parse(jsonMatch[0]);
+                } else {
+                    throw new Error("JSON_PARSE_ERROR");
                 }
-                if(isNaN(parsedData.tutar)) parsedData.tutar = 0;
-                
-                executeAiCommand(parsedData);
-            } else {
-                throw new Error("JSON formatı bulunamadı.");
             }
+
+            // Sayısal değer koruması: Eğer tutar hala string ise zorla Float'a çevir
+            if(typeof parsedData.tutar === 'string') {
+                let temizTutar = parsedData.tutar.replace(/\./g, '').replace(/,/g, '.');
+                parsedData.tutar = parseFloat(temizTutar);
+            }
+            
+            // Eğer Nan (sayı değil) olduysa güvenlik amacıyla 0 yap
+            if(isNaN(parsedData.tutar)) {
+                parsedData.tutar = 0;
+            }
+            
+            executeAiCommand(parsedData);
+            
         } catch (error) {
-            console.error("Gemini Hatası:", error);
-            showToast("İşlem anlaşılamadı, tekrar deneyin.", "fa-robot");
+            console.error("Gemini Asistan Hatası:", error);
+            
+            // GELİŞMİŞ HATA YAKALAMA VE EKRANA YAZDIRMA
+            if (error.message.includes("API_HTTP_ERROR")) {
+                showToast("API Bağlantı veya Anahtar Hatası!", "fa-triangle-exclamation");
+            } else if (error.message.includes("JSON_PARSE_ERROR") || error.message.includes("Unexpected")) {
+                showToast("Sistemsel Okuma Hatası (Format)", "fa-code");
+            } else {
+                showToast("Anlaşılamadı, tekrar deneyin.", "fa-question-circle");
+            }
         } finally { 
             resetMicUI(); 
         }
@@ -608,9 +647,10 @@ Kurallar ve Format:
 
     function executeAiCommand(data) {
         if (!data || !data.tip || !data.tutar) { 
-            showToast("Bunu anlayamadım.", "fa-question"); 
+            showToast("İşlem eksik, algılanamadı.", "fa-exclamation"); 
             return; 
         }
+        
         let newId = Date.now(); 
         let islemTarihi = getTodayStr(); 
         let successMsg = "";
@@ -619,6 +659,7 @@ Kurallar ve Format:
         if (data.hedefHesap && data.hedefHesap !== 'nakit' && data.hedefHesap.trim() !== '') {
             let kelimeler = data.hedefHesap.toLowerCase().split(' ');
             let bulunan = false;
+            
             for(let v of db.vadesiz) { 
                 if (kelimeler.some(k => v.baslik.toLowerCase().includes(k) || v.banka.toLowerCase().includes(k))) { 
                     odemeId = 'v_' + v.id; 
@@ -626,6 +667,7 @@ Kurallar ve Format:
                     break; 
                 } 
             }
+            
             if(!bulunan) { 
                 for(let t of db.taksitler) { 
                     if (t.tur === 'kart' && kelimeler.some(k => t.baslik.toLowerCase().includes(k) || t.banka.toLowerCase().includes(k))) { 
@@ -639,15 +681,19 @@ Kurallar ve Format:
         if (data.tip === 'gelir') {
             let cat = data.kategori || "Diğer Gelir";
             let baslik = data.baslik ? `${cat} - ${data.baslik}` : cat;
+            
             db.hareketler.unshift({ id: newId, tip: 'gelir', baslik: baslik, miktar: data.tutar, tarih: islemTarihi, odemeYontemi: odemeId });
             bakiyeEkle(odemeId, data.tutar); 
+            
             successMsg = `${toFormat(data.tutar)} TL Gelir Eklendi!`;
         } 
         else if (data.tip === 'gider') {
             let cat = data.kategori || "Diğer Gider";
             let baslik = data.baslik ? `${cat} - ${data.baslik}` : cat;
+            
             db.hareketler.unshift({ id: newId, tip: 'gider', baslik: baslik, miktar: data.tutar, tarih: islemTarihi, odemeYontemi: odemeId });
             bakiyeDus(odemeId, data.tutar); 
+            
             successMsg = `${toFormat(data.tutar)} TL Gider Eklendi!`;
         }
         else if (data.tip === 'alacak' || data.tip === 'borc') {
@@ -664,16 +710,24 @@ Kurallar ve Format:
     }
 
     // =========================================================
-    // YEDEKLEME VE VERİTABANI (V19 Premium)
+    // YEDEKLEME VE VERİTABANI KONTROLÜ
     // =========================================================
     let eskiDb = JSON.parse(localStorage.getItem('finans_veritabani_v18')) || JSON.parse(localStorage.getItem('finans_veritabani_v15'));
     let db = JSON.parse(localStorage.getItem('finans_veritabani_v19')) || eskiDb || { 
         hareketler: [], cuzdan: [], taksitler: [], alacaklar: [], abonelikler: [], hedefler: [], vadesiz: []
     };
     
-    if(!db.sonTutarlar) { db.sonTutarlar = { gelir: {}, gider: {} }; }
-    if(!db.hedefler) { db.hedefler = []; }
-    if(!db.vadesiz) { db.vadesiz = []; }
+    if(!db.sonTutarlar) { 
+        db.sonTutarlar = { gelir: {}, gider: {} }; 
+    }
+    
+    if(!db.hedefler) { 
+        db.hedefler = []; 
+    }
+    
+    if(!db.vadesiz) { 
+        db.vadesiz = []; 
+    }
     
     db.hedefler.forEach(h => { 
         if(h && h.biriken === undefined) h.biriken = 0; 
@@ -705,17 +759,21 @@ Kurallar ve Format:
         let dataStr = JSON.stringify(db, null, 2);
         let dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
         let linkElement = document.createElement('a');
+        
         linkElement.setAttribute('href', dataUri);
         linkElement.setAttribute('download', 'FinansKokpiti_Yedek_' + getTodayStr() + '.json');
+        
         document.body.appendChild(linkElement); 
         linkElement.click(); 
         document.body.removeChild(linkElement);
+        
         showToast("Veriler cihaza indirildi!", "fa-download");
     }
     
     function importData(event) {
         let file = event.target.files[0]; 
         if (!file) return;
+        
         let reader = new FileReader();
         reader.onload = function(e) {
             try { 
@@ -740,7 +798,7 @@ Kurallar ve Format:
     }
 
     // =========================================================
-    // CANLI KUR MOTORU, ZAMANLAYICI VE HESAPLAYICILAR
+    // CANLI KUR MOTORU VE HESAPLAYICILAR
     // =========================================================
     let altinkaynak = { has: 6563.00, ceyrek: 10553.00, gram22: 5986.00, usd: 50.158, eur: 56.064 };
     let countdown = 180; 
@@ -760,7 +818,9 @@ Kurallar ve Format:
     async function fetchLiveRates(silent = true) {
         if(!silent) {
             let rBtn = document.getElementById('refreshBtnIcon');
-            if(rBtn) { rBtn.classList.add('spin-anim'); }
+            if(rBtn) { 
+                rBtn.classList.add('spin-anim'); 
+            }
         }
         
         try {
@@ -793,11 +853,13 @@ Kurallar ve Format:
 
     function startTimer() {
         if(timerInterval) clearInterval(timerInterval);
+        
         updateTimerDisplay();
         
         timerInterval = setInterval(() => {
             countdown--; 
             updateTimerDisplay();
+            
             if(countdown <= 0) { 
                 clearInterval(timerInterval); 
                 fetchLiveRates(true); 
@@ -808,12 +870,13 @@ Kurallar ve Format:
     function updateTimerDisplay() {
         let el = document.getElementById('liveTimerDisplay');
         if(!el) return;
+        
         let m = Math.floor(countdown / 60).toString().padStart(2, '0');
         let s = (countdown % 60).toString().padStart(2, '0');
+        
         el.innerText = `${m}:${s}`;
     }
     
-    // Uygulama açılışında kurları çek ve sayacı başlat
     fetchLiveRates(true);
 
     // =========================================================
@@ -892,6 +955,7 @@ Kurallar ve Format:
         
         let dIslem = new Date(dateStr); 
         let dGecerli = new Date(aktifTarih);
+        
         dIslem.setHours(0,0,0,0); 
         dGecerli.setHours(0,0,0,0);
         
@@ -1013,7 +1077,7 @@ Kurallar ve Format:
     }
 
     // =========================================================
-    // SABİT VERİLER (Banka & Varlıklar)
+    // SABİT VERİLER
     // =========================================================
     const bankalar = [
         { id: 'akbank', ad: 'Akbank', icon: 'fa-building-columns', r1: '#be1238', r2: '#7a0b23', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Akbank_logo.svg/320px-Akbank_logo.svg.png' },
@@ -1039,7 +1103,7 @@ Kurallar ve Format:
     };
 
     // =========================================================
-    // ARAMA VE ANALİZ MODÜLLERİ
+    // ARAMA VE ANALİZ
     // =========================================================
     function openSearch() { 
         document.getElementById('searchModal').classList.remove('hidden'); 
@@ -1110,6 +1174,7 @@ Kurallar ve Format:
             
             let yuzde = (dataObj[k] / total) * 100; 
             let cHex = colorsObj[k] || "#cbd5e1";
+            
             conicParts.push(`${cHex} ${cA}% ${cA + yuzde}%`); 
             cA += yuzde;
             
@@ -1155,6 +1220,7 @@ Kurallar ve Format:
             if(found) gK[found] += h.miktar; 
             else gK["Diğer Gider"] += h.miktar; 
         });
+        
         let gColors = { "Market & Gıda": "#10b981", "Ev Kirası": "#f59e0b", "Faturalar": "#0ea5e9", "Ulaşım & Yakıt": "#f97316", "Eğlence & Abonelik": "#8b5cf6", "Giyim & Kişisel": "#ec4899", "Diğer Gider": "#64748b" };
         
         let glK = { "Maaş": 0, "Kira": 0, "Özel Ders": 0, "Ticaret / Satış": 0, "Prim / Ek İş": 0, "Diğer Gelir": 0 };
@@ -1164,6 +1230,7 @@ Kurallar ve Format:
             if(found) glK[found] += h.miktar; 
             else glK["Diğer Gelir"] += h.miktar; 
         });
+        
         let glColors = { "Maaş": "#10b981", "Kira": "#0ea5e9", "Özel Ders": "#f59e0b", "Ticaret / Satış": "#8b5cf6", "Prim / Ek İş": "#ec4899", "Diğer Gelir": "#64748b" };
 
         let cHtml = generatePieHTML("Aylık Net Durum (Girdi / Çıktı)", netData, tGelir + tGider, netColors);
@@ -1175,7 +1242,7 @@ Kurallar ve Format:
     }
 
     // =========================================================
-    // FORMLAR VE AKILLI YARDIMCILAR
+    // FORMLAR
     // =========================================================
     function openMenuModal() { 
         document.getElementById('menuModal').classList.remove('hidden'); 
@@ -1201,7 +1268,10 @@ Kurallar ve Format:
         
         if(db.sonTutarlar[tip] && db.sonTutarlar[tip][kat]) {
             let sT = db.sonTutarlar[tip][kat];
-            oneriDiv.innerHTML = `<button onclick="document.getElementById('f_tutar').value='${toFormat(sT)}'; return false;" class="bg-indigo-500/10 text-indigo-400 text-xs px-3 py-2 rounded-lg font-bold mt-1 mb-2 border border-indigo-500/20 transition-all hover:bg-indigo-500/20 w-full text-left flex items-center"><i class="fa-solid fa-clock-rotate-left mr-2"></i>Son Girilen: ${toFormat(sT)} ₺ (Tıkla Doldur)</button>`; 
+            oneriDiv.innerHTML = `
+            <button onclick="document.getElementById('f_tutar').value='${toFormat(sT)}'; return false;" class="bg-indigo-500/10 text-indigo-400 text-xs px-3 py-2 rounded-lg font-bold mt-1 mb-2 border border-indigo-500/20 transition-all hover:bg-indigo-500/20 w-full text-left flex items-center">
+                <i class="fa-solid fa-clock-rotate-left mr-2"></i>Son Girilen: ${toFormat(sT)} ₺ (Tıkla Doldur)
+            </button>`; 
             oneriDiv.classList.remove('hidden');
         } else { 
             oneriDiv.classList.add('hidden'); 
@@ -2112,7 +2182,7 @@ Kurallar ve Format:
     }
 
     // =========================================================
-    // SEKMELERİN (SAYFALARIN) YÜKLENDİĞİ YER
+    // SEKMELERİN (SAYFALARIN) YÜKLENDİĞİ YER VE HTML OLUŞTURMA
     // =========================================================
     function switchTab(tabId, element) {
         if(element) { 
@@ -2298,7 +2368,6 @@ Kurallar ve Format:
                 </div>`;
             }).join('');
 
-            // HEDEF KARTLARINI ORTALAYAN VE BÜYÜTEN KISIM BURASI
             let gHedefler = db.hedefler.filter(h => h && h.baslik);
             let hedefCarousel = gHedefler.length > 0 ? `
             <div class="relative w-full overflow-hidden">
@@ -2353,7 +2422,6 @@ Kurallar ve Format:
                         </div>
                     </div>
                     
-                    <!-- NEON TURUNCU RAKAM DEĞİŞİKLİĞİ (Cüzdan Toplamı İçin) -->
                     <h2 class="text-[34px] font-extrabold text-[#ff9d00] drop-shadow-[0_0_15px_rgba(255,157,0,0.6)] mt-1 mb-4 tracking-tight leading-none relative z-10">
                         ${fNum(totalVarlik, 0)} ₺
                     </h2>
@@ -2633,10 +2701,12 @@ Kurallar ve Format:
                     if (a.vadeTarihi && !isHistory) {
                         let vDate = new Date(a.vadeTarihi); 
                         let aDate = new Date(aktifTarih);
+                        
                         if (!isNaN(vDate.getTime())) { 
                             vDate.setHours(0,0,0,0); 
                             aDate.setHours(0,0,0,0); 
                             let diffDays = Math.ceil((vDate - aDate) / (1000 * 60 * 60 * 24));
+                            
                             if (diffDays <= 1) { 
                                 let msg = diffDays === 1 ? "Yarın son gün!" : (diffDays === 0 ? "Bugün gününde!" : "Vadesi " + Math.abs(diffDays) + " gün geçti!"); 
                                 let toastAd = isAlacak ? 'Tahsilat' : 'Ödeme'; 
