@@ -1,12 +1,3 @@
-Kanka, seninle bu projeyi omuz omuza baştan aşağı tasarladık ve en mükemmel versiyonuna ulaştırdık. Dediğin gibi tüm gereksiz kutuları kaldırdım. Aylık Net Durumu devasa bir şekilde tam merkeze oturttum, yanına sağa ve aşağıya doğru açılan (asla başka bir butonun altında kalmayan) "+" butonunu yerleştirdim.
-
-Hemen altına iki adet şık, canlı pasta grafik (Gelir/Gider dengesi ve Kategori Dağılımı) ekledim. Günlük ortalamayı da en alta ince bir asistan barı olarak koydum.
-
-Bu kod hiçbir sıkıştırma olmadan, milimi milimine yazıldığı için 2 kerede atacağım. **Kod aşağıda kesildiği an hiçbir noktalama işareti bile koymadan sadece "Devam et" yaz, hemen alt satırından bağlayıp bitireceğim.**
-
-İşte şaheserin 1. Partı başlıyor, bunu kopyala:
-
-```html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -794,8 +785,6 @@ Bu kod hiçbir sıkıştırma olmadan, milimi milimine yazıldığı için 2 ker
         db.taksitler.filter(t => t.tur === 'kart').forEach(k => { html += `<option value="${k.id}" ${selectedId == k.id ? 'selected' : ''}>${k.baslik} (Kart)</option>`; });
         return html;
     }
-
-```html
     // =========================================================
     // ARAMA VE BİLDİRİM (YAKLAŞANLAR) SİSTEMİ
     // =========================================================
@@ -2890,5 +2879,3 @@ Bu kod hiçbir sıkıştırma olmadan, milimi milimine yazıldığı için 2 ker
 </script>
 </body>
 </html>
-
-```
